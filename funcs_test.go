@@ -15,6 +15,7 @@ func TestDateFormat(t *testing.T) {
 		value  interface{}
 		expect interface{}
 	}{
+		{"Monday, Jan 2, 2006", nil, time.Now().Format("Monday, Jan 2, 2006")},
 		{"Monday, Jan 2, 2006", "2015-01-21", "Wednesday, Jan 21, 2015"},
 		{"Monday, Jan 2, 2006", time.Date(2015, time.January, 21, 0, 0, 0, 0, time.UTC), "Wednesday, Jan 21, 2015"},
 		{"This isn't a date layout string", "2015-01-21", "This isn't a date layout string"},
