@@ -3,7 +3,6 @@ language: go
 go:
   - 1.6
   - 1.7
-  - release
   - tip
 
 install:
@@ -13,12 +12,12 @@ install:
   - go get github.com/modocache/gover
 
 script:
-  - go test -coverprofile=renderer.coverprofile
+  - go test -tags=integration -coverprofile=renderer.coverprofile
   - gover
   - goveralls -coverprofile=gover.coverprofile -service=travis-ci
   - diff -u <(echo -n) <(gofmt -d .)
   - go vet $(go list ./... | grep -v /vendor/)
-  - go test -v -race .
+  - go test -v -race -tags=integration
 
 matrix:
   allow_failures:

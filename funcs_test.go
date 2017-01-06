@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDateFormat(t *testing.T) {
@@ -26,17 +28,31 @@ func TestDateFormat(t *testing.T) {
 	} {
 		result, err := dateFormat(this.layout, this.value)
 		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] DateFormat didn't return an expected error, got %v", i, result)
-			}
+			assert.Error(t, err, "[%d] DateFormat didn't return an expected error", i)
 		} else {
-			if err != nil {
-				t.Errorf("[%d] DateFormat failed: %s", i, err)
-				continue
+			if assert.NoError(t, err, "[%d] DateFormat failed", i) {
+				assert.Equal(t, this.expect, result, "[%d] DateFormat failed", i)
 			}
-			if result != this.expect {
-				t.Errorf("[%d] DateFormat got %v but expected %v", i, result, this.expect)
-			}
+		}
+	}
+}
+
+func TestDictionary(t *testing.T) {
+	for i, this := range []struct {
+		v1            []interface{}
+		expecterr     bool
+		expectedValue map[string]interface{}
+	}{
+		{[]interface{}{"a", "b"}, false, map[string]interface{}{"a": "b"}},
+		{[]interface{}{5, "b"}, true, nil},
+		{[]interface{}{"a", 12, "b", []int{4}}, false, map[string]interface{}{"a": 12, "b": []int{4}}},
+		{[]interface{}{"a", "b", "c"}, true, nil},
+	} {
+		r, err := dictionary(this.v1...)
+
+		assert.False(t, (this.expecterr && err == nil) || (!this.expecterr && err != nil), "[%d] got an unexpected error", i)
+		if !this.expecterr {
+			assert.Equal(t, this.expectedValue, r, "[%d] got an unexpected value", i)
 		}
 	}
 }
@@ -51,33 +67,20 @@ func TestSafeHTML(t *testing.T) {
 		{`<div></div>`, `{{ . }}`, `&lt;div&gt;&lt;/div&gt;`, `<div></div>`},
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
-		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
-			continue
-		}
+		assert.NoError(t, err, "[%d| unable to create new html template %q", i, this.tmplStr)
 
 		buf := new(bytes.Buffer)
 		err = tmpl.Execute(buf, this.str)
-		if err != nil {
-			t.Errorf("[%d] execute template with a raw string value returns unexpected error: %s", i, err)
-		}
-		if buf.String() != this.expectWithoutEscape {
-			t.Errorf("[%d] execute template with a raw string value, got %v but expected %v", i, buf.String(), this.expectWithoutEscape)
-		}
+		assert.NoError(t, err, "[%d] execute template with a raw string value returns unexpected error", i)
+		assert.Equal(t, this.expectWithoutEscape, buf.String(), "[%d] execute template with a raw string value", i)
 
 		buf.Reset()
 		v, err := safeHTML(this.str)
-		if err != nil {
-			t.Fatalf("[%d] unexpected error in safeHTML: %s", i, err)
-		}
+		assert.NoError(t, err, "[%d] unexpected error in safeHTML", i)
 
 		err = tmpl.Execute(buf, v)
-		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by safeHTML returns unexpected error: %s", i, err)
-		}
-		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by safeHTML, got %v but expected %v", i, buf.String(), this.expectWithEscape)
-		}
+		assert.NoError(t, err, "[%d] execute template with an escaped string value by safeHTML returns unexpected error", i)
+		assert.Equal(t, this.expectWithEscape, buf.String(), "[%d] execute template with an escaped string value by safeHTML", i)
 	}
 }
 
@@ -91,32 +94,21 @@ func TestSafeURL(t *testing.T) {
 		{`irc://irc.freenode.net/#golang`, `<a href="{{ . }}">IRC</a>`, `<a href="#ZgotmplZ">IRC</a>`, `<a href="irc://irc.freenode.net/#golang">IRC</a>`},
 	} {
 		tmpl, err := template.New("test").Parse(this.tmplStr)
-		if err != nil {
-			t.Errorf("[%d] unable to create new html template %q: %s", i, this.tmplStr, err)
-			continue
-		}
+		assert.NoError(t, err, "[%d] unable to create new html template %q", i, this.tmplStr)
 
 		buf := new(bytes.Buffer)
 		err = tmpl.Execute(buf, this.str)
-		if err != nil {
-			t.Errorf("[%d] execute template with a raw string value returns unexpected error: %s", i, err)
-		}
-		if buf.String() != this.expectWithoutEscape {
-			t.Errorf("[%d] execute template with a raw string value, got %v but expected %v", i, buf.String(), this.expectWithoutEscape)
+		if assert.NoError(t, err, "[%d] execute template with a raw string value returns unexpected error", i) {
+			assert.Equal(t, this.expectWithoutEscape, buf.String(), "[%d] execute template with a raw string value", i)
 		}
 
 		buf.Reset()
 		v, err := safeURL(this.str)
-		if err != nil {
-			t.Fatalf("[%d] unexpected error in safeURL: %s", i, err)
-		}
+		assert.NoError(t, err, "[%d] unexpected error in safeURL", i)
 
 		err = tmpl.Execute(buf, v)
-		if err != nil {
-			t.Errorf("[%d] execute template with an escaped string value by safeURL returns unexpected error: %s", i, err)
-		}
-		if buf.String() != this.expectWithEscape {
-			t.Errorf("[%d] execute template with an escaped string value by safeURL, got %v but expected %v", i, buf.String(), this.expectWithEscape)
+		if assert.NoError(t, err, "[%d] execute template with an escaped string value by safeURL", i) {
+			assert.Equal(t, this.expectWithEscape, buf.String(), "[%d] execute template with an escaped string value by safeURL", i)
 		}
 	}
 }

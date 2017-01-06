@@ -1,5 +1,11 @@
 package renderer
 
+// text/template functions to add "essential" functionality to projects without
+// overdoing it. The majority of these functions are extracted from spf13/hugo.
+// Since the template.FuncMap wasn't explorted, we weren't able to include them
+// without adding an unnecessary amount of overhead to the project.
+// https://github.com/spf13/hugo/blob/master/tpl/template_funcs.go
+
 import (
 	"errors"
 	"fmt"

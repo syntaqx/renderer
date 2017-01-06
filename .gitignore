@@ -22,7 +22,15 @@ _cgo_export.*
 
 _testmain.go
 
-# Compiled binaries
 *.exe
 *.test
 *.prof
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# External packages folder
+vendor/
+
+# code coverage profiles
+*.coverprofile
