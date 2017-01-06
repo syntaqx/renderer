@@ -3,8 +3,9 @@
 [unrolled-render]: https://github.com/unrolled/render
 [labstack-echo]: https://github.com/labstack/echo
 
-Renderer provides a wrapper for [unrolled/render][]'s `Render` instance that
-implements the [labstack/echo][] `Renderer` interface for template rendering.
+Renderer provides a wrapper for [unrolled/render][unrolled-render]'s `Render`
+instance that implements the [labstack/echo][labstack-echo] `Renderer` interface
+for template rendering.
 
 ## Install
 
