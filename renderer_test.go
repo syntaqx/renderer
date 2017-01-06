@@ -25,6 +25,20 @@ func TestWrapBasic(t *testing.T) {
 	assert.Equal(t, "<h1>Hello gophers</h1>\n", body)
 }
 
+func TestWrapError(t *testing.T) {
+	e := echo.New()
+	e.Debug = true
+	e.Renderer = Wrap(render.New())
+
+	e.GET("/hello", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "no-exists", nil)
+	})
+
+	status, body := request(echo.GET, "/hello", e)
+	assert.Equal(t, http.StatusInternalServerError, status)
+	assert.JSONEq(t, `{"message": "html/template: \"no-exists\" is undefined"}`, body)
+}
+
 func request(method, path string, e *echo.Echo) (int, string) {
 	req, _ := http.NewRequest(method, path, nil)
 	rec := httptest.NewRecorder()
