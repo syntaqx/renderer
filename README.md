@@ -1,5 +1,8 @@
 # Renderer
 
+[![GoDoc](https://godoc.org/github.com/syntaqx/renderer?status.svg)](https://godoc.org/github.com/syntaqx/renderer)
+![license](https://img.shields.io/github/license/syntaqx/renderer.svg)
+
 [unrolled-render]: https://github.com/unrolled/render
 [labstack-echo]: https://github.com/labstack/echo
 [example-app]: ./example
